@@ -2,6 +2,12 @@
 
 A fullstack chat application built with HTML, CSS, JavaScript, Node.js, and PostgreSQL. Features real-time messaging, anonymous chat mode, and user authentication.
 
+## How to Test the app
+If you want to test with existing users, the seed data created these test accounts:
+- Email: john@example.com, Password: password123
+- Email: jane@example.com, Password: password123
+- Email: bob@example.com, Password: password123
+
 ## Features
 
 - 🔐 User authentication (Login/Register)
