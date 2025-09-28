@@ -1,0 +1,46 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend project built using ts-backend-starter",
+  "license": "ISC",
+  "author": "",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "nodemon",
+    "start": "node build/index.js",
+    "build": "npm i && tsc",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "ts-node prisma/seed.ts"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/body-parser": "^1.19.6",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.0.13",
+    "@types/pg": "^8.11.10",
+    "nodemon": "^3.1.10",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "@types/morgan": "^1.9.10",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^2.2.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.12.0",
+    "socket.io": "^4.8.1"
+  }
+}

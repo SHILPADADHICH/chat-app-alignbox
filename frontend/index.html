@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alignbox Chat App</title>
+
+    <!-- styles -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-800 min-h-screen">
+    <!-- Login/Register Modal -->
+    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-8 rounded-lg w-96 max-w-full mx-4">
+        <h2 id="authTitle" class="text-2xl font-bold text-center mb-6 text-[#a2190a]">Login</h2>
+        <form id="authForm">
+          <div id="usernameField" class="mb-4 hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+            <input type="text" id="username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a2190a]" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <input type="email" id="email" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a2190a]" required>
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <input type="password" id="password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a2190a]" required>
+          </div>
+          <button type="submit" class="w-full bg-[#a2190a] text-white p-3 rounded-lg hover:bg-[#8a1508] transition-colors">
+            <span id="authButtonText">Login</span>
+          </button>
+        </form>
+        <p class="text-center mt-4 text-gray-600">
+          <span id="authSwitchText">Don't have an account?</span>
+          <button id="authSwitch" class="text-[#a2190a] hover:underline ml-1">Register</button>
+        </p>
+      </div>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <div id="chatInterface" class="hidden">
+      <!-- Status Bar -->
+      <div class="bg-black text-white text-sm px-4 py-1 flex justify-between items-center">
+        <span>9:41</span>
+        <div class="flex items-center space-x-1">
+          <div class="w-4 h-2 bg-white rounded-sm"></div>
+          <div class="w-4 h-2 bg-white rounded-sm"></div>
+          <div class="w-6 h-3 border border-white rounded-sm">
+            <div class="w-4 h-2 bg-white rounded-sm m-0.5"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Anonymous Banner -->
+      <div id="anonymousBanner" class="bg-gray-700 text-white text-center py-2 text-sm hidden">
+        <span>Anonymously Chat group_With_Anonymous ON</span>
+      </div>
+
+      <!-- Header -->
+      <header class="bg-white p-3 shadow flex justify-between items-center">
+        <div class="flex items-center gap-5">
+          <button onclick="goBack()" class="cursor-pointer">
+            <img
+              src="./public/icons/chat/arrow-left.svg"
+              alt="arrow-left"
+              class="w-5 h-5"
+            />
+          </button>
+
+          <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+            <img src="./public/icons/chat/user.svg" alt="user" class="w-6 h-6" />
+          </div>
+
+          <p class="text-lg font-bold text-[#a2190a]" id="groupName">Fun Friday Group</p>
+        </div>
+
+        <button onclick="toggleIncognito()" class="cursor-pointer">
+          <img
+            id="incognitoOnIcon"
+            class="hidden"
+            src="./public/icons/chat/incognito-on.svg"
+            alt="incognito-on"
+            class="w-10 h-10"
+          />
+          <img
+            id="incognitoOffIcon"
+            src="./public/icons/chat/incognito-off.svg"
+            alt="incognito-off"
+            class="w-10 h-10"
+          />
+        </button>
+      </header>
+
+      <!-- Chat Messages Area -->
+      <div class="flex-1 overflow-y-auto bg-white p-4 space-y-4" id="messagesContainer">
+        <!-- Sample messages will be loaded here -->
+      </div>
+
+      <!-- Anonymous Mode Indicator -->
+      <div id="anonymousIndicator" class="bg-gray-100 border-t border-gray-200 py-3 text-center text-sm text-gray-600 hidden">
+        <div class="flex items-center justify-center space-x-2">
+          <img src="./public/icons/chat/incognito-on.svg" alt="incognito" class="w-4 h-4" />
+          <span>Now you're appearing as Anonymous!</span>
+          <img src="./public/icons/chat/incognito-on.svg" alt="incognito" class="w-4 h-4" />
+        </div>
+      </div>
+
+      <!-- Message Input Area -->
+      <div class="bg-white border-t border-gray-200 p-4">
+        <div class="flex items-center space-x-3">
+          <input
+            type="text"
+            id="messageInput"
+            placeholder="Type a message ..."
+            class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a2190a]"
+          />
+          <button onclick="attachFile()" class="p-2 text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+            </svg>
+          </button>
+          <button onclick="attachImage()" class="p-2 text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </button>
+          <button onclick="sendMessage()" class="bg-[#a2190a] text-white p-3 rounded-full hover:bg-[#8a1508] transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Socket.IO CDN -->
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

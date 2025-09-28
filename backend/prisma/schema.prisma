@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique
+  email       String   @unique
+  password    String
+  is_anonymous Boolean @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  created_groups Group[] @relation("GroupCreator")
+  group_members  GroupMember[]
+  messages       Message[]
+
+  @@map("users")
+}
+
+model Group {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  created_by  Int?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  creator User? @relation("GroupCreator", fields: [created_by], references: [id], onDelete: SetNull)
+  members GroupMember[]
+  messages Message[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id       Int      @id @default(autoincrement())
+  group_id Int
+  user_id  Int
+  joined_at DateTime @default(now())
+
+  // Relations
+  group Group @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([group_id, user_id])
+  @@map("group_members")
+}
+
+model Message {
+  id           Int      @id @default(autoincrement())
+  group_id     Int
+  user_id      Int
+  content      String
+  is_anonymous Boolean  @default(false)
+  created_at   DateTime @default(now())
+
+  // Relations
+  group Group @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
