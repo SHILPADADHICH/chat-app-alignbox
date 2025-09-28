@@ -3,16 +3,17 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { createServer } from "http";
+import path from "path";
 import { Server, Socket } from "socket.io";
 
 // locals and configs
 import { CORS_ORIGINS, PORT } from "./constants/config";
+import prisma from "./database/connection/prisma";
 import { getLocalIpAddress } from "./utils/config";
 import { configureLogger } from "./utils/logger";
-import prisma from "./database/connection/prisma";
 
 // Routes
-import { baseRoutes, authRoutes, chatRoutes } from "./routes";
+import { authRoutes, baseRoutes, chatRoutes } from "./routes";
 
 dotenv.config();
 
@@ -23,22 +24,22 @@ const io = new Server(server, {
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      
+
       // Allow localhost and 127.0.0.1 on any port
-      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
         return callback(null, true);
       }
-      
+
       // Allow origins from CORS_ORIGINS environment variable
-      if (CORS_ORIGINS.includes('*') || CORS_ORIGINS.includes(origin)) {
+      if (CORS_ORIGINS.includes("*") || CORS_ORIGINS.includes(origin)) {
         return callback(null, true);
       }
-      
-      callback(new Error('Not allowed by CORS'));
+
+      callback(new Error("Not allowed by CORS"));
     },
     methods: ["GET", "POST"],
-    credentials: true
-  }
+    credentials: true,
+  },
 });
 
 // Setup request logging with custom Morgan configuration
@@ -54,18 +55,18 @@ app.use(
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      
+
       // Allow localhost and 127.0.0.1 on any port
-      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
         return callback(null, true);
       }
-      
+
       // Allow origins from CORS_ORIGINS environment variable
-      if (CORS_ORIGINS.includes('*') || CORS_ORIGINS.includes(origin)) {
+      if (CORS_ORIGINS.includes("*") || CORS_ORIGINS.includes(origin)) {
         return callback(null, true);
       }
-      
-      callback(new Error('Not allowed by CORS'));
+
+      callback(new Error("Not allowed by CORS"));
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Session-ID"],
@@ -82,6 +83,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/", baseRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
+
+// Serve static files from frontend directory in production
+if (process.env.NODE_ENV === "production") {
+  const frontendPath = path.join(__dirname, "../../frontend");
+  app.use(express.static(frontendPath));
+
+  // Serve index.html for all non-API routes (SPA routing)
+  app.use((req, res) => {
+    // Skip API routes
+    if (req.path.startsWith("/api/")) {
+      return res.status(404).json({ error: "API endpoint not found" });
+    }
+    res.sendFile(path.join(frontendPath, "index.html"));
+  });
+}
 
 // Socket.IO connection handling
 io.on("connection", (socket: Socket) => {
@@ -128,7 +144,9 @@ const startServer = async () => {
               retryCount++;
               currentPort++;
               console.log(
-                `Port ${currentPort - 1} is in use, trying port ${currentPort}...`
+                `Port ${
+                  currentPort - 1
+                } is in use, trying port ${currentPort}...`
               );
               server.close();
               attemptListen().then(resolve).catch(reject);
