@@ -79,15 +79,19 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Serve static files from frontend directory in production
+if (process.env.NODE_ENV === "production") {
+  const frontendPath = path.join(__dirname, "../../frontend");
+  app.use(express.static(frontendPath));
+}
+
 // API routes
-app.use("/", baseRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
 
 // Serve static files from frontend directory in production
 if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(__dirname, "../../frontend");
-  app.use(express.static(frontendPath));
+  const frontendPath = path.join(__dirname, "../frontend");
 
   // Serve index.html for all non-API routes (SPA routing)
   app.use((req, res) => {
@@ -97,6 +101,9 @@ if (process.env.NODE_ENV === "production") {
     }
     res.sendFile(path.join(frontendPath, "index.html"));
   });
+} else {
+  // Development mode - serve base routes
+  app.use("/", baseRoutes);
 }
 
 // Socket.IO connection handling
