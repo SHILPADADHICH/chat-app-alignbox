@@ -19,28 +19,7 @@ dotenv.config();
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-
-      // Allow localhost and 127.0.0.1 on any port
-      if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
-        return callback(null, true);
-      }
-
-      // Allow origins from CORS_ORIGINS environment variable
-      if (CORS_ORIGINS.includes("*") || CORS_ORIGINS.includes(origin)) {
-        return callback(null, true);
-      }
-
-      callback(new Error("Not allowed by CORS"));
-    },
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
+const io = new Server(server);
 
 // Setup request logging with custom Morgan configuration
 const logger = configureLogger();
@@ -94,7 +73,7 @@ if (process.env.NODE_ENV === "production") {
   const frontendPath = path.join(__dirname, "../frontend");
 
   // Serve index.html for all non-API routes (SPA routing)
-  app.use((req, res) => {
+  app.use((req: express.Request, res: express.Response) => {
     // Skip API routes
     if (req.path.startsWith("/api/")) {
       return res.status(404).json({ error: "API endpoint not found" });
